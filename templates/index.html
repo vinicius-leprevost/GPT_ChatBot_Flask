@@ -3,43 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multi-AI Chatbot</title> <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- Use dynamic title based on current chat -->
+    <title>{{ current_title }} - Multi-AI Chatbot</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <div class="chat-container d-flex flex-column vh-100">
-        <header class="chat-header bg-primary text-white p-3 text-center shadow-sm">
-            <h1><i class="fas fa-comments me-2"></i> Multi-AI Chatbot</h1> <small>Switch between GPT & Gemini</small>
-        </header>
-
-        <main class="chat-window flex-grow-1 p-3" id="chat-window">
-            <div class="message bot-message">
-                Hello! Choose a model below and ask me anything.
+    <div class="d-flex vh-100 main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar bg-light border-end d-flex flex-column" id="sidebar">
+            <div class="p-3 border-bottom sidebar-header">
+                <button class="btn btn-primary w-100" id="new-chat-button">
+                    <i class="fas fa-plus me-2"></i>New Chat
+                </button>
             </div>
-        </main>
+            <nav class="nav flex-column p-2 overflow-auto chat-list-container flex-grow-1">
+                <ul class="list-group list-group-flush" id="chat-list">
+                    <!-- Chat history items will be loaded here by Jinja and JS -->
+                    {% for chat in chats %}
+                    <li class="list-group-item list-group-item-action {% if chat.id == current_chat_id %}active{% endif %}"
+                        role="button"
+                        data-chat-id="{{ chat.id }}">
+                        {{ chat.title | truncate(30) }} {# Limit title length visually #}
+                    </li>
+                    {% endfor %}
+                 </ul>
+            </nav>
+            <div class="p-2 border-top mt-auto">
+                 <!-- API Keys Button moved to bottom of sidebar -->
+                <button type="button" class="btn btn-outline-secondary btn-sm w-100" id="add-keys-button" data-bs-toggle="modal" data-bs-target="#apiKeysModal">
+                    <i class="fas fa-key me-1"></i> API Keys
+                </button>
+            </div>
+        </aside>
 
-        <div class="typing-indicator p-2 text-muted" id="typing-indicator" style="display: none;">
-            <small><em>Bot is typing...</em> <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span></small>
-        </div>
-
-        <div class="model-selector p-2 px-3 bg-light border-top">
-             <label for="model-select" class="form-label small mb-1">Choose AI Model:</label>
-             <select class="form-select form-select-sm" id="model-select">
-                 <option value="gpt" selected>GPT (OpenAI)</option>
-                 <option value="gemini">Gemini (Google)</option>
-             </select>
-        </div>
-
-        <footer class="chat-input-area p-3 bg-light border-top pt-2"> <form id="message-form">
-                 <div class="input-group">
-                    <input type="text" id="message-input" class="form-control form-control-lg" placeholder="Type your message here..." autocomplete="off" required>
-                    <button class="btn btn-primary btn-lg" type="submit" id="send-button">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
+        <!-- Main Chat Area -->
+        <div class="chat-container d-flex flex-column flex-grow-1">
+            <header class="chat-header bg-primary text-white p-3 d-flex justify-content-between align-items-center shadow-sm">
+                 <!-- Header now mainly shows current chat title or status -->
+                 <h1 id="current-chat-title" class="h5 mb-0">
+                    <i class="fas fa-comments me-2"></i>
+                    <span id="chat-title-text">{{ current_title }}</span>
+                 </h1>
+                 <!-- Model Selector moved to header for better visibility -->
+                 <div class="model-selector-header ms-auto d-flex align-items-center">
+                     <label for="model-select" class="form-label small mb-0 me-2 text-white-50">Model:</label>
+                     <select class="form-select form-select-sm bg-primary text-white border-light" id="model-select" style="width: auto;">
+                         <option value="gpt" selected style="background-color: white; color: black;">GPT (OpenAI)</option>
+                         <option value="gemini" style="background-color: white; color: black;">Gemini (Google)</option>
+                     </select>
                 </div>
-            </form>
-        </footer>
+            </header>
+
+            <main class="chat-window flex-grow-1 p-3" id="chat-window">
+                 <!-- Messages will be loaded here -->
+                 {% if not current_chat_history or current_chat_history|length <= 1 %}
+                     <div class="message bot-message">
+                         Hello! {% if not current_chat_id %}Start a new chat or select one from the sidebar.{% else %}Ask me anything.{% endif %}
+                         <br><small class="text-muted">Remember to <button type="button" class="btn btn-link p-0 align-baseline" data-bs-toggle="modal" data-bs-target="#apiKeysModal">add your API keys</button> if needed.</small>
+                     </div>
+                 {% else %}
+                    {% for message in current_chat_history %}
+                        {% if message.role == 'user' %}
+                            <div class="message user-message">{{ message.content }}</div>
+                        {% elif message.role == 'assistant' %}
+                            <div class="message bot-message {% if message.is_error %}error-message{% endif %}">{{ message.content }}</div>
+                        {% endif %} {# Ignore system messages in display #}
+                    {% endfor %}
+                 {% endif %}
+                 <div id="key-status" class="p-2 text-center small text-muted"></div> <!-- Key Status Area -->
+            </main>
+
+            <div class="typing-indicator p-2 text-muted" id="typing-indicator" style="display: none;">
+                <small><em>Bot is typing...</em> <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span></small>
+            </div>
+
+            <!-- Input Footer -->
+            <footer class="chat-input-area p-3 bg-light border-top pt-2">
+                <form id="message-form">
+                    <div class="input-group">
+                        <input type="text" id="message-input" class="form-control form-control-lg" placeholder="Type your message..." autocomplete="off" required>
+                        <button class="btn btn-primary btn-lg" type="submit" id="send-button" disabled>
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </form>
+            </footer>
+        </div><!-- End Main Chat Area -->
+
+    </div><!-- End d-flex main container -->
+
+    <!-- API Keys Modal (Content Unchanged) -->
+    <div class="modal fade" id="apiKeysModal" tabindex="-1" aria-labelledby="apiKeysModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="apiKeysModalLabel"><i class="fas fa-key me-2"></i>Add Your API Keys</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                     <p class="small text-muted">Your keys are stored temporarily in your browser session and sent to the server only when needed for API calls. Closing the browser tab will clear them.</p>
+                     <div class="mb-3">
+                         <label for="openai-key-input" class="form-label"><i class="fab fa-openai me-1"></i> OpenAI API Key</label>
+                         <input type="password" class="form-control" id="openai-key-input" placeholder="Enter your OpenAI key (sk-...)">
+                     </div>
+                     <div class="mb-3">
+                         <label for="google-key-input" class="form-label"><i class="fab fa-google me-1"></i> Google AI API Key</label>
+                         <input type="password" class="form-control" id="google-key-input" placeholder="Enter your Google AI key (AIza...)">
+                          <small class="form-text text-muted">Ensure the 'Generative Language API' is enabled in your Google Cloud project.</small>
+                     </div>
+                     <div id="modal-key-status" class="mt-3 small"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="save-keys-button">Save Keys</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>

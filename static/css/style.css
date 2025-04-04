@@ -1,33 +1,94 @@
 /* static/css/style.css */
 
-/* Base styles (largely unchanged) */
+/* Base styles */
 body {
     background-color: #f0f2f5;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     overflow: hidden; /* Prevent full page scroll */
 }
 
+/* Main Layout using Flexbox */
+.main-container {
+    background-color: #ffffff; /* Give main container a background */
+}
+
+/* Sidebar Styles */
+.sidebar {
+    width: 260px; /* Fixed width for the sidebar */
+    flex-shrink: 0; /* Prevent sidebar from shrinking */
+    /* height: 100vh; handled by parent d-flex vh-100 */
+    overflow-y: hidden; /* Prevent sidebar scroll, allow inner list scroll */
+}
+
+.sidebar-header {
+    flex-shrink: 0; /* Prevent header from shrinking if content overflows */
+}
+
+.chat-list-container {
+    /* Let the list container take remaining space and scroll */
+    overflow-y: auto;
+    flex-grow: 1;
+}
+.list-group-item {
+     cursor: pointer;
+     white-space: nowrap; /* Prevent wrapping */
+     overflow: hidden; /* Hide overflow */
+     text-overflow: ellipsis; /* Add ... for overflow */
+     border: none; /* Cleaner look */
+     border-radius: 0.3rem !important; /* Slight rounding */
+     margin-bottom: 2px; /* Small gap */
+     font-size: 0.9rem;
+}
+.list-group-item:hover {
+    background-color: #e9ecef; /* Hover effect */
+}
+.list-group-item.active {
+    background-color: #0d6efd; /* Bootstrap primary */
+    color: white;
+    font-weight: 500;
+}
+.list-group-item.active:hover {
+     background-color: #0b5ed7; /* Darker blue on hover when active */
+}
+
+
+/* Chat Container takes remaining width */
 .chat-container {
-    max-width: 800px; /* Max width on large screens */
-    margin: auto;     /* Center container */
-    background-color: #ffffff;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-    overflow: hidden; /* Ensures content respects border-radius */
-    /* Full height is handled by d-flex/vh-100 in HTML */
+    /* flex-grow-1 makes it take remaining space */
+    box-shadow: -2px 0 5px rgba(0,0,0,0.05); /* Subtle shadow separating from sidebar */
 }
 
+/* Chat Header adjustments */
 .chat-header {
-    border-bottom: 1px solid #dee2e6;
+     /* No border needed if chat container has shadow */
+     flex-shrink: 0; /* Prevent header shrink */
 }
 
-.chat-header h1 {
-    font-size: 1.5rem;
-    margin-bottom: 0.2rem;
+.chat-header h1 { /* Now using h1 for title */
+    font-size: 1.1rem; /* Adjust title size */
+    margin-bottom: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: calc(100% - 150px); /* Limit title width to prevent overlap with model selector */
 }
 
+.model-selector-header {
+     /* Styles for model selector in header */
+}
+.model-selector-header .form-select-sm {
+     padding-top: 0.2rem;
+     padding-bottom: 0.2rem;
+     font-size: 0.8rem;
+}
+.model-selector-header label {
+    font-size: 0.8rem;
+}
+
+
+/* Chat Window */
 .chat-window {
-    overflow-y: auto; /* Enable vertical scroll ONLY for messages */
+    overflow-y: auto;
     scroll-behavior: smooth;
     background-color: #e9ecef;
     display: flex;
@@ -35,96 +96,120 @@ body {
     /* flex-grow-1 in HTML makes it fill space */
 }
 
+/* Message Styles (largely unchanged) */
 .message {
     padding: 10px 15px;
     margin-bottom: 10px;
     border-radius: 18px;
-    max-width: 75%; /* Limit message width */
+    max-width: 80%; /* Slightly wider max */
     line-height: 1.4;
     word-wrap: break-word;
+    border: 1px solid transparent; /* Base border */
 }
-
-.user-message {
+.user-message { /* Unchanged */
     background-color: #0d6efd;
     color: white;
-    align-self: flex-end; /* Align user messages to the right */
+    align-self: flex-end;
     border-bottom-right-radius: 5px;
     margin-left: auto;
 }
-
-.bot-message {
+.bot-message { /* Unchanged */
     background-color: #ffffff;
     color: #333;
-    align-self: flex-start; /* Align bot messages to the left */
+    align-self: flex-start;
     border: 1px solid #dee2e6;
     border-bottom-left-radius: 5px;
     margin-right: auto;
 }
-
-.chat-input-area {
-    border-top: 1px solid #dee2e6;
+.bot-message.error-message { /* Unchanged */
+    background-color: #f8d7da;
+    color: #842029;
+    border-color: #f5c2c7;
 }
 
-#message-input {
-    border-right: none;
-    box-shadow: none !important;
-    border-color: #ced4da;
-}
 
-#message-input:focus {
-     border-color: #86b7fe;
-}
-
-#send-button {
-     border-top-left-radius: 0;
-     border-bottom-left-radius: 0;
-     transition: background-color 0.2s ease-in-out;
-}
-
-#send-button:hover {
-    background-color: #0b5ed7;
-}
-
+/* Typing Indicator & Input Area (unchanged) */
 .typing-indicator {
     font-style: italic;
     color: #6c757d;
     height: 30px;
     display: flex;
     align-items: center;
-    padding-left: 1.5rem; /* Align with bot messages */
+    padding-left: 1.5rem;
+     flex-shrink: 0; /* Prevent shrink */
+}
+.chat-input-area {
+    border-top: 1px solid #dee2e6;
+     flex-shrink: 0; /* Prevent shrink */
+}
+#message-input { /* Unchanged */
+    border-right: none;
+    box-shadow: none !important;
+    border-color: #ced4da;
+}
+#message-input:focus { border-color: #86b7fe; }
+#send-button { /* Unchanged */
+     border-top-left-radius: 0;
+     border-bottom-left-radius: 0;
+     transition: background-color 0.2s ease-in-out;
+}
+#send-button:hover { background-color: #0b5ed7; }
+
+/* Responsiveness */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 60px; /* Collapse sidebar */
+        overflow: hidden; /* Hide text */
+    }
+    .sidebar-header .btn span, /* Hide text */
+    .sidebar .list-group-item {
+        text-indent: -9999px; /* Hide text visually */
+        position: relative; /* For icon positioning */
+        padding-left: 0;
+        padding-right: 0;
+        text-align: center;
+        white-space: normal; /* Allow wrap if needed for icon maybe */
+    }
+     /* Maybe add icons to list items later for collapsed view */
+    .sidebar-header .btn i { margin-right: 0 !important; } /* Remove margin when text hidden */
+
+     #add-keys-button span { /* Hide API key text */
+        display: none;
+    }
+     #add-keys-button i { margin-right: 0 !important; }
+
+
+    .chat-header h1 {
+        max-width: calc(100% - 120px); /* Adjust title width for smaller model selector */
+    }
+
+    /* Adjust message width if needed */
+    .message {
+        max-width: 90%;
+    }
 }
 
-/* Styles for the new model selector section */
-.model-selector {
-    /* Optional: Add specific styling if needed */
-    /* Example: border-bottom: 1px solid #dee2e6; */
-}
-
-.model-selector label {
-    font-weight: 500;
-}
-
-/* --- Responsiveness Adjustments --- */
-/* Bootstrap handles most responsiveness (grid, flex utilities) */
-/* This media query provides minor tweaks for smaller screens */
 @media (max-width: 576px) {
-    /* ... (previous responsive styles) ... */
-
-    .model-selector {
-        padding-left: 1rem !important; /* Adjust padding on small screens */
-        padding-right: 1rem !important;
+     /* Further adjustments for very small screens if needed */
+     .chat-header h1 {
+        font-size: 1rem;
     }
-    .model-selector .form-select-sm {
-        font-size: 0.875rem; /* Ensure select is readable */
-    }
+     .model-selector-header label { display: none; } /* Hide label */
+     .model-selector-header .form-select-sm { font-size: 0.75rem; }
 
-     .chat-input-area {
-         padding-top: 0.5rem !important; /* Reduce top padding above input */
-     }
+     #message-input, #send-button { font-size: 0.9rem; }
 }
+
 
 /* Optional Custom Scrollbar (Webkit) */
-.chat-window::-webkit-scrollbar { width: 8px; }
-.chat-window::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
-.chat-window::-webkit-scrollbar-thumb { background: #adb5bd; border-radius: 10px; }
-.chat-window::-webkit-scrollbar-thumb:hover { background: #555; }
+.chat-window::-webkit-scrollbar,
+.chat-list-container::-webkit-scrollbar { width: 6px; }
+.chat-window::-webkit-scrollbar-track,
+.chat-list-container::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+.chat-window::-webkit-scrollbar-thumb,
+.chat-list-container::-webkit-scrollbar-thumb { background: #adb5bd; border-radius: 10px; }
+.chat-window::-webkit-scrollbar-thumb:hover,
+.chat-list-container::-webkit-scrollbar-thumb:hover { background: #555; }
+
+/* Modal styles unchanged */
+.modal-body .form-label { font-weight: 500; }
