@@ -1,0 +1,5 @@
+Flask>=2.0
+python-dotenv>=0.19
+openai>=1.0
+google-generativeai>=0.4
+gunicorn

@@ -1,0 +1,130 @@
+/* static/css/style.css */
+
+/* Base styles (largely unchanged) */
+body {
+    background-color: #f0f2f5;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow: hidden; /* Prevent full page scroll */
+}
+
+.chat-container {
+    max-width: 800px; /* Max width on large screens */
+    margin: auto;     /* Center container */
+    background-color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    overflow: hidden; /* Ensures content respects border-radius */
+    /* Full height is handled by d-flex/vh-100 in HTML */
+}
+
+.chat-header {
+    border-bottom: 1px solid #dee2e6;
+}
+
+.chat-header h1 {
+    font-size: 1.5rem;
+    margin-bottom: 0.2rem;
+}
+
+.chat-window {
+    overflow-y: auto; /* Enable vertical scroll ONLY for messages */
+    scroll-behavior: smooth;
+    background-color: #e9ecef;
+    display: flex;
+    flex-direction: column;
+    /* flex-grow-1 in HTML makes it fill space */
+}
+
+.message {
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    border-radius: 18px;
+    max-width: 75%; /* Limit message width */
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+
+.user-message {
+    background-color: #0d6efd;
+    color: white;
+    align-self: flex-end; /* Align user messages to the right */
+    border-bottom-right-radius: 5px;
+    margin-left: auto;
+}
+
+.bot-message {
+    background-color: #ffffff;
+    color: #333;
+    align-self: flex-start; /* Align bot messages to the left */
+    border: 1px solid #dee2e6;
+    border-bottom-left-radius: 5px;
+    margin-right: auto;
+}
+
+.chat-input-area {
+    border-top: 1px solid #dee2e6;
+}
+
+#message-input {
+    border-right: none;
+    box-shadow: none !important;
+    border-color: #ced4da;
+}
+
+#message-input:focus {
+     border-color: #86b7fe;
+}
+
+#send-button {
+     border-top-left-radius: 0;
+     border-bottom-left-radius: 0;
+     transition: background-color 0.2s ease-in-out;
+}
+
+#send-button:hover {
+    background-color: #0b5ed7;
+}
+
+.typing-indicator {
+    font-style: italic;
+    color: #6c757d;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    padding-left: 1.5rem; /* Align with bot messages */
+}
+
+/* Styles for the new model selector section */
+.model-selector {
+    /* Optional: Add specific styling if needed */
+    /* Example: border-bottom: 1px solid #dee2e6; */
+}
+
+.model-selector label {
+    font-weight: 500;
+}
+
+/* --- Responsiveness Adjustments --- */
+/* Bootstrap handles most responsiveness (grid, flex utilities) */
+/* This media query provides minor tweaks for smaller screens */
+@media (max-width: 576px) {
+    /* ... (previous responsive styles) ... */
+
+    .model-selector {
+        padding-left: 1rem !important; /* Adjust padding on small screens */
+        padding-right: 1rem !important;
+    }
+    .model-selector .form-select-sm {
+        font-size: 0.875rem; /* Ensure select is readable */
+    }
+
+     .chat-input-area {
+         padding-top: 0.5rem !important; /* Reduce top padding above input */
+     }
+}
+
+/* Optional Custom Scrollbar (Webkit) */
+.chat-window::-webkit-scrollbar { width: 8px; }
+.chat-window::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+.chat-window::-webkit-scrollbar-thumb { background: #adb5bd; border-radius: 10px; }
+.chat-window::-webkit-scrollbar-thumb:hover { background: #555; }
