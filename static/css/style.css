@@ -16,7 +16,6 @@ body {
 .sidebar {
     width: 260px; /* Fixed width for the sidebar */
     flex-shrink: 0; /* Prevent sidebar from shrinking */
-    /* height: 100vh; handled by parent d-flex vh-100 */
     overflow-y: hidden; /* Prevent sidebar scroll, allow inner list scroll */
 }
 
@@ -29,15 +28,19 @@ body {
     overflow-y: auto;
     flex-grow: 1;
 }
+
+/* Sidebar List Item Styling */
 .list-group-item {
-     cursor: pointer;
-     white-space: nowrap; /* Prevent wrapping */
+     /* cursor: pointer; /* Removed as main div is now the primary clickable area */
+     white-space: nowrap; /* Prevent wrapping initially */
      overflow: hidden; /* Hide overflow */
      text-overflow: ellipsis; /* Add ... for overflow */
      border: none; /* Cleaner look */
      border-radius: 0.3rem !important; /* Slight rounding */
      margin-bottom: 2px; /* Small gap */
      font-size: 0.9rem;
+     /* Adjusted padding for icons */
+     padding: 0.5rem 0.75rem;
 }
 .list-group-item:hover {
     background-color: #e9ecef; /* Hover effect */
@@ -49,6 +52,59 @@ body {
 }
 .list-group-item.active:hover {
      background-color: #0b5ed7; /* Darker blue on hover when active */
+}
+
+/* Main clickable area within list item */
+.chat-item-main {
+    cursor: pointer;
+    overflow: hidden; /* Ensure text/input respects boundaries */
+    min-width: 0; /* Allow flex item to shrink */
+}
+.chat-title-text {
+     /* Inherit styles, maybe add display: block if needed */
+     display: block; /* Ensure it takes full width available */
+     white-space: nowrap;
+     overflow: hidden;
+     text-overflow: ellipsis;
+     line-height: 1.5; /* Match input height */
+}
+.chat-title-input {
+    /* Make input blend in */
+    padding: 0.1rem 0.3rem;
+    height: calc(1.5em + 0.2rem + 2px); /* Match typical sm input height */
+    font-size: 0.9rem; /* Match list item font size */
+    /* Ensure it takes full width when visible */
+    width: 100%;
+    display: block; /* Or inline-block if needed */
+    box-sizing: border-box; /* Include padding/border in width */
+}
+
+/* Action Icons Container and Icons */
+.chat-item-actions {
+    /* Position icons nicely */
+    white-space: nowrap; /* Prevent wrapping */
+    /* Align items vertically if needed */
+    display: flex;
+    align-items: center;
+}
+.action-icon {
+    cursor: pointer;
+    font-size: 0.85rem; /* Slightly smaller icons */
+    opacity: 0.6;
+    transition: opacity 0.2s ease-in-out;
+}
+/* Make icons slightly more visible on non-active items when hovered */
+.list-group-item:not(.active):hover .action-icon {
+    opacity: 0.8;
+}
+/* Make icons fully visible on active items or when icon itself is hovered */
+.list-group-item.active .action-icon,
+.action-icon:hover {
+    opacity: 1.0;
+}
+/* Active item icons should be white */
+.list-group-item.active .action-icon {
+    color: white !important; /* Override text-secondary/danger etc. */
 }
 
 
@@ -70,7 +126,7 @@ body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: calc(100% - 150px); /* Limit title width to prevent overlap with model selector */
+    max-width: calc(100% - 180px); /* Limit title width, accounting for model selector */
 }
 
 .model-selector-header {
@@ -96,7 +152,7 @@ body {
     /* flex-grow-1 in HTML makes it fill space */
 }
 
-/* Message Styles (largely unchanged) */
+/* Message Styles */
 .message {
     padding: 10px 15px;
     margin-bottom: 10px;
@@ -106,14 +162,14 @@ body {
     word-wrap: break-word;
     border: 1px solid transparent; /* Base border */
 }
-.user-message { /* Unchanged */
+.user-message {
     background-color: #0d6efd;
     color: white;
     align-self: flex-end;
     border-bottom-right-radius: 5px;
     margin-left: auto;
 }
-.bot-message { /* Unchanged */
+.bot-message {
     background-color: #ffffff;
     color: #333;
     align-self: flex-start;
@@ -121,14 +177,42 @@ body {
     border-bottom-left-radius: 5px;
     margin-right: auto;
 }
-.bot-message.error-message { /* Unchanged */
+.bot-message.error-message {
     background-color: #f8d7da;
     color: #842029;
     border-color: #f5c2c7;
 }
+.bot-message.error-message i { /* Style icon within error message */
+    margin-right: 0.3rem;
+}
+
+/* --- Styles for Code Blocks --- */
+.bot-message pre {
+    background-color: #f8f9fa; /* Light background for code block */
+    border: 1px solid #dee2e6; /* Subtle border */
+    border-radius: 4px; /* Rounded corners */
+    padding: 10px; /* Padding inside the block */
+    overflow-x: auto; /* Allow horizontal scrolling for long lines */
+    white-space: pre; /* Preserve whitespace and line breaks */
+    word-wrap: normal; /* Prevent wrapping inside pre */
+    margin-top: 8px; /* Space above the code block */
+    margin-bottom: 8px; /* Space below the code block */
+    max-width: 100%; /* Ensure it doesn't overflow message bubble */
+}
+
+.bot-message code {
+    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace; /* Monospace font */
+    font-size: 0.875em; /* Slightly smaller font size */
+    color: #212529; /* Code text color */
+    background-color: transparent; /* Inherit background from pre */
+    padding: 0; /* No extra padding for inline code */
+    border-radius: 0; /* No border radius for inline code */
+    white-space: inherit; /* Inherit whitespace handling */
+}
+/* --- End Code Block Styles --- */
 
 
-/* Typing Indicator & Input Area (unchanged) */
+/* Typing Indicator & Input Area */
 .typing-indicator {
     font-style: italic;
     color: #6c757d;
@@ -142,18 +226,19 @@ body {
     border-top: 1px solid #dee2e6;
      flex-shrink: 0; /* Prevent shrink */
 }
-#message-input { /* Unchanged */
+#message-input {
     border-right: none;
     box-shadow: none !important;
     border-color: #ced4da;
 }
 #message-input:focus { border-color: #86b7fe; }
-#send-button { /* Unchanged */
+#send-button {
      border-top-left-radius: 0;
      border-bottom-left-radius: 0;
      transition: background-color 0.2s ease-in-out;
 }
-#send-button:hover { background-color: #0b5ed7; }
+#send-button:hover:not(:disabled) { background-color: #0b5ed7; } /* Hover only when enabled */
+#send-button:disabled { background-color: #0d6efd; opacity: 0.65; } /* Style disabled button */
 
 /* Responsiveness */
 @media (max-width: 768px) {
@@ -161,16 +246,30 @@ body {
         width: 60px; /* Collapse sidebar */
         overflow: hidden; /* Hide text */
     }
-    .sidebar-header .btn span, /* Hide text */
-    .sidebar .list-group-item {
-        text-indent: -9999px; /* Hide text visually */
-        position: relative; /* For icon positioning */
-        padding-left: 0;
-        padding-right: 0;
-        text-align: center;
-        white-space: normal; /* Allow wrap if needed for icon maybe */
+    .sidebar-header .btn span, /* Hide text in New Chat button */
+    .sidebar .chat-title-text, /* Hide chat title text */
+    .sidebar .chat-title-input /* Hide input field */
+     {
+        display: none; /* Hide text/input visually */
     }
-     /* Maybe add icons to list items later for collapsed view */
+    .sidebar .list-group-item {
+        justify-content: center !important; /* Center icons */
+        padding-left: 0.5rem; /* Adjust padding */
+        padding-right: 0.5rem;
+    }
+     .chat-item-main { /* Make main area take no space when text hidden */
+        flex-grow: 0 !important;
+        margin-right: 0 !important;
+        min-width: 0; /* Ensure it can shrink */
+     }
+     .chat-item-actions { /* Center actions */
+         width: 100%;
+         justify-content: center;
+     }
+     /* Adjust icon spacing if needed */
+     .action-icon.ms-2 { margin-left: 0.5rem !important; }
+
+
     .sidebar-header .btn i { margin-right: 0 !important; } /* Remove margin when text hidden */
 
      #add-keys-button span { /* Hide API key text */
@@ -180,7 +279,7 @@ body {
 
 
     .chat-header h1 {
-        max-width: calc(100% - 120px); /* Adjust title width for smaller model selector */
+        max-width: calc(100% - 150px); /* Adjust title width for smaller model selector */
     }
 
     /* Adjust message width if needed */
@@ -193,9 +292,10 @@ body {
      /* Further adjustments for very small screens if needed */
      .chat-header h1 {
         font-size: 1rem;
+         max-width: calc(100% - 130px); /* Further adjust title width */
     }
      .model-selector-header label { display: none; } /* Hide label */
-     .model-selector-header .form-select-sm { font-size: 0.75rem; }
+     .model-selector-header .form-select-sm { font-size: 0.75rem; width: 90px !important; } /* Adjust selector width */
 
      #message-input, #send-button { font-size: 0.9rem; }
 }
@@ -203,13 +303,37 @@ body {
 
 /* Optional Custom Scrollbar (Webkit) */
 .chat-window::-webkit-scrollbar,
-.chat-list-container::-webkit-scrollbar { width: 6px; }
+.chat-list-container::-webkit-scrollbar,
+.bot-message pre::-webkit-scrollbar /* Style scrollbar for code blocks too */
+{
+     width: 6px;
+     height: 6px; /* For horizontal scrollbar */
+}
 .chat-window::-webkit-scrollbar-track,
-.chat-list-container::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+.chat-list-container::-webkit-scrollbar-track,
+.bot-message pre::-webkit-scrollbar-track
+{
+     background: #f1f1f1;
+     border-radius: 10px;
+}
 .chat-window::-webkit-scrollbar-thumb,
-.chat-list-container::-webkit-scrollbar-thumb { background: #adb5bd; border-radius: 10px; }
+.chat-list-container::-webkit-scrollbar-thumb,
+.bot-message pre::-webkit-scrollbar-thumb
+{
+     background: #adb5bd;
+     border-radius: 10px;
+}
 .chat-window::-webkit-scrollbar-thumb:hover,
-.chat-list-container::-webkit-scrollbar-thumb:hover { background: #555; }
+.chat-list-container::-webkit-scrollbar-thumb:hover,
+.bot-message pre::-webkit-scrollbar-thumb:hover
+{
+     background: #555;
+}
 
 /* Modal styles unchanged */
 .modal-body .form-label { font-weight: 500; }
+
+/* Utility - Ensure Bootstrap's d-none works if there are conflicts */
+.d-none {
+    display: none !important;
+}
